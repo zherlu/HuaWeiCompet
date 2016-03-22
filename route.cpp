@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <iostream>
+#include <string.h>
 
 // 边的结构体
 typedef struct edge{
@@ -17,14 +18,21 @@ typedef struct edge{
 
 // 顶点结构体
 typedef struct vertex{
-	int id;           // 顶点编号
+	int id;
 	int out_degree;   // 该顶点的出度
 	Edge_T *e_list;// 以该顶点为起点的所有边的集合链表
+	int search_flag;
+	int special_flag;
 }Vertex_T;
 
 
 // 图的存储结构:顶点的邻接表
 Vertex_T v_list[600];
+
+
+int path_source=-1;
+int path_target=-1;
+
 
 
 inline int GetRandNum(int from, int to)
@@ -35,14 +43,34 @@ inline int GetRandNum(int from, int to)
 	return (int)(rand()%(to-from+1)+from);
 }
 
-void map_init(char *topo[5000], int edge_num)
+void map_init(char *topo[5000], int edge_num, char *demand)
 {
 	for(int i=0;i<600;i++)
 	{
 		v_list[i].id = -1;
 		v_list[i].out_degree = 0;
 		v_list[i].e_list = NULL;
+		v_list[i].search_flag = -1;
+		v_list[i].special_flag = -1;
 	}
+	
+	sscanf(demand,"%d,%d,",&path_source, &path_target);
+
+	char *infile = demand+4;
+	char tmp[5]=" ";
+	do{
+		sscanf(infile,"%[^|]",tmp);
+		int vr = atoi(tmp);
+		infile+=strlen(tmp);
+		infile+=1;
+		std::cout<<"special vertex "<<vr<<"  "<<std::endl;
+		memset(tmp,'\0',5);
+	}while( *infile!='\0' );
+
+	std::cout<<std::endl;
+
+	v_list[path_source].special_flag =-1;
+	
 
 	for(int i=0;i<edge_num;i++)
 	{
@@ -72,7 +100,7 @@ void map_init(char *topo[5000], int edge_num)
 
 void search_route(char *topo[5000], int edge_num, char *demand)
 {
-	map_init(topo, edge_num);
+	map_init(topo, edge_num, demand);
 
 	for(int i=0;i<edge_num;i++)
 		std::cout<<topo[i];
