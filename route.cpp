@@ -29,9 +29,10 @@ typedef struct vertex{
 // 图的存储结构:顶点的邻接表
 Vertex_T v_list[600];
 
-
+// 所求路径的源点和终点
 int path_source=-1;
 int path_target=-1;
+
 
 
 
@@ -42,6 +43,27 @@ inline int GetRandNum(int from, int to)
 	srand(tm.tv_usec);
 	return (int)(rand()%(to-from+1)+from);
 }
+
+inline void ReadDemand(char *demand)
+{
+	sscanf(demand,"%d,%d,",&path_source, &path_target);
+	char *infile = strrchr(demand,',')+1;
+	char tmp[5]=" ";
+
+	while( *infile!='\0' ){
+		
+		sscanf(infile,"%[^|]",tmp);// 读一串字符直到遇到 '|' 为止
+
+		v_list[ atoi(tmp) ].special_flag = 1; // 标记特殊点
+		
+		infile+=strlen(tmp)+1;
+		memset(tmp,'\0',5);
+	}
+
+	v_list[path_source].special_flag = -1; // 源点的特殊点标记
+	v_list[path_target].special_flag = 1;  // 目标点的特殊点标记
+}
+
 
 void map_init(char *topo[5000], int edge_num, char *demand)
 {
@@ -54,24 +76,9 @@ void map_init(char *topo[5000], int edge_num, char *demand)
 		v_list[i].special_flag = -1;
 	}
 	
-	sscanf(demand,"%d,%d,",&path_source, &path_target);
+	ReadDemand(demand);
 
-	char *infile = demand+4;
-	char tmp[5]=" ";
-	do{
-		sscanf(infile,"%[^|]",tmp);
-		int vr = atoi(tmp);
-		infile+=strlen(tmp);
-		infile+=1;
-		std::cout<<"special vertex "<<vr<<"  "<<std::endl;
-		memset(tmp,'\0',5);
-	}while( *infile!='\0' );
-
-	std::cout<<std::endl;
-
-	v_list[path_source].special_flag =-1;
-	
-
+	// 构建邻接表
 	for(int i=0;i<edge_num;i++)
 	{
 		int e_id,v_st,v_ed,e_w;
@@ -105,11 +112,18 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 	for(int i=0;i<edge_num;i++)
 		std::cout<<topo[i];
 
-	std::cout<<"test\n";
+	std::cout<<"\ntest-------------------------------\n";
+
+	std::cout<<"source: "<<path_source<<std::endl;
+	std::cout<<"target: "<<path_target<<std::endl;
 
 	for(int i=0;i<600;i++)
 		if( v_list[i].id>=0){
-			std::cout<<"v_id: "<<i<<"\n";
+			std::cout<<"vertex: "<<i<<"-----------";
+			if(v_list[i].special_flag==1)
+				std::cout<<"   "<<"is special";
+			std::cout<<std::endl;
+
 			Edge_T *e = v_list[i].e_list;
 			while(e){
 				std::cout<<e->id<<"  "<<e->st<<" "<<e->ed<<" "<<e->wt<<std::endl;
