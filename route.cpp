@@ -20,10 +20,29 @@ typedef struct edge{
 typedef struct vertex{
 	int id;
 	int out_degree;   // 该顶点的出度
-	Edge_T *e_list;// 以该顶点为起点的所有边的集合链表
-	int search_flag;
-	int special_flag;
+	Edge_T *e_list;   // 以该顶点为起点的所有边的集合链表
+	int search_flag;  // 遍历标记
+	int special_flag; // 特殊点标记
+	struct vertex *next;
 }Vertex_T;
+
+#define MAX_ROUTE 0X7FFFFFFF
+#define UNIT_NUM  10
+#define MAX_GEN   10
+
+// 个体单元---即一条路径，记录该路径上的所有顶点信息，以及该路径的信息
+typedef struct unit_t{
+	Vertex_T *vList; // 路径上的所有顶点
+	int special_num; // 路径上包含的特殊点个数
+	int length;      // 路径上的权重和
+}Unit_T;
+
+
+// 种群-------多个个体（路径）的集合
+Unit_T group[UNIT_NUM];
+
+// 最优个体，指向group中的一个
+Unit_T *best_one=NULL;
 
 
 // 图的存储结构:顶点的邻接表
@@ -43,6 +62,21 @@ inline int GetRandNum(int from, int to)
 	srand(tm.tv_usec);
 	return (int)(rand()%(to-from+1)+from);
 }
+
+// 随机深度优先遍历，产生一条从指定源点到目标点的路径,存储到path中
+void RandDeepSearch(int source_id, int target_id, Unit_T *path)
+{
+	
+}
+
+// 种群初始化：随机产生多条从s->t的路径
+void group_init()
+{
+	for(int i=0;i<UNIT_NUM;i++){
+		RandDeepSearch(path_source, path_target,&group[i]);
+	}
+}
+
 
 inline void ReadDemand(char *demand)
 {
@@ -74,6 +108,7 @@ void map_init(char *topo[5000], int edge_num, char *demand)
 		v_list[i].e_list = NULL;
 		v_list[i].search_flag = -1;
 		v_list[i].special_flag = -1;
+		v_list[i].next = NULL;
 	}
 	
 	ReadDemand(demand);
@@ -108,6 +143,9 @@ void map_init(char *topo[5000], int edge_num, char *demand)
 void search_route(char *topo[5000], int edge_num, char *demand)
 {
 	map_init(topo, edge_num, demand);
+
+	group_init();// 种群初始化
+
 
 	for(int i=0;i<edge_num;i++)
 		std::cout<<topo[i];
