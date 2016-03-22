@@ -51,6 +51,7 @@ Vertex_T v_list[600];
 // 所求路径的源点和终点
 int path_source=-1;
 int path_target=-1;
+int special_total=-1;
 
 
 
@@ -73,6 +74,9 @@ void RandDeepSearch(int source_id, int target_id, Unit_T *path)
 void group_init()
 {
 	for(int i=0;i<UNIT_NUM;i++){
+		group[i].vList = NULL;
+		group[i].special_num = 0;
+		
 		RandDeepSearch(path_source, path_target,&group[i]);
 	}
 }
